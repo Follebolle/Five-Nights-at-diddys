@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Five Nights at Diddy's</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        #lobby {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #game-screen {
+            display: none;
+            width: 80%;
+            height: 400px;
+            margin: auto;
+            background-color: darkgray;
+            position: relative;
+        }
+        #power {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: red;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        #camera-button, #close-door, #start-game {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #jumpscare {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 100;
+        }
+        #jumpscare img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div id="lobby">
+        <h1>Welcome to Five Nights at Diddy's</h1>
+        <button id="start-game">Start Game</button>
+    </div>
+    <div id="game-screen">
+        <h1>Five Nights at Diddy's - Night <span id="night-counter">1</span></h1>
+        <div id="power">Power: <span id="power-level">100%</span></div>
+        <button id="camera-button">Check Cameras</button>
+        <button id="close-door">Close Door</button>
+    </div>
+    <div id="jumpscare">
+        <img src="jumpscare.png" alt="Jumpscare">
+    </div>
+    <audio id="jumpscare-sound" src="jumpscare.mp3"></audio>
+    <script>
+        let power = 100;
+        let night = 1;
+        let gameActive = false;
+        let diddyPosition = 0;
+        let fbiPosition = 0;
+        let caseohPosition = 0;
+        let drakePosition = 0;
+
+        document.getElementById("start-game").addEventListener("click", () => {
+            document.getElementById("lobby").style.display = "none";
+            document.getElementById("game-screen").style.display = "block";
+            gameActive = true;
+            startGameLoop();
+        });
+
+        function startGameLoop() {
+            setInterval(() => {
+                if (!gameActive) return;
+                power -= 1;
+                updatePower();
+                if (power <= 0) {
+                    gameOver("You ran out of power!");
+                }
+            }, 3000);
+        }
+
+        function updatePower() {
+            document.getElementById("power-level").innerText = power + "%";
+        }
+
+        document.getElementById("camera-button").addEventListener("click", () => {
+            if (!gameActive) return;
+            power -= 5;
+            updatePower();
+            alert("Checking cameras...");
+            if (Math.random() < 0.2) fbiPosition++;
+            if (Math.random() < 0.25) caseohPosition++;
+            if (Math.random() < 0.25) drakePosition++;
+            if (Math.random() < 0.1) diddyPosition++;
+            checkEnemyPositions();
+        });
+
+        document.getElementById("close-door").addEventListener("click", () => {
+            if (!gameActive) return;
+            power -= 10;
+            updatePower();
+            alert("Door closed! Enemies reset.");
+            caseohPosition = 0;
+            drakePosition = 0;
+            diddyPosition = 0;
+        });
+
+        function checkEnemyPositions() {
+            if (fbiPosition >= 3) gameOver("FBI busted in!");
+            if (caseohPosition >= 4) gameOver("Caseoh sneaked in!");
+            if (drakePosition >= 4) gameOver("Drake charged in!");
+            if (diddyPosition >= 6) gameOver("Diddy slowly crept in!");
+        }
+
+        function gameOver(message) {
+            document.getElementById("jumpscare").style.display = "block";
+            document.getElementById("jumpscare-sound").play();
+            setTimeout(() => {
+                alert("Game Over! " + message);
+                gameActive = false;
+                location.reload();
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
